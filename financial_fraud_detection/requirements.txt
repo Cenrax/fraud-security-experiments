@@ -1,0 +1,15 @@
+torch
+transformers
+datasets
+scikit-learn
+pandas
+numpy
+tqdm
+matplotlib
+tensorboard
+nltk
+wandb
+agno
+openai
+tqdm
+python-dotenv
