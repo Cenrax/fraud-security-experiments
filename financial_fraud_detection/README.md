@@ -112,9 +112,78 @@ The project uses three approaches for generating financial fraud data:
 
 The data generation covers various fraud categories including identity theft, payment fraud, money laundering, investment fraud, and phishing scams.
 
+## Architecture
+
+```mermaid
+graph TD
+    subgraph "Data Preparation"
+        A[Raw Text Data] --> B[Agno + GPT-4.1-mini]
+        B --> C[Synthetic Data Generation]
+        C --> D[Processed Dataset]
+    end
+    
+    subgraph "Knowledge Distillation"
+        E[BERT Teacher Model] --> |Train| F[Teacher Training]
+        F --> G[Trained Teacher Model]
+        G --> |Knowledge Transfer| H[General Distillation]
+        H --> I[TinyBERT Student Model]
+        I --> J[Task-Specific Distillation]
+        J --> K[Optimized TinyBERT Model]
+    end
+    
+    subgraph "Evaluation & Application"
+        K --> L[Model Evaluation]
+        L --> M[Performance Metrics]
+        K --> N[Fraud Detection API]
+        K --> O[Batch Processing]
+        K --> P[Real-time Classification]
+    end
+    
+    D --> E
+    D --> J
+```
+
 ## Performance
 
 TinyBERT is approximately 7.5x smaller than BERT-base while maintaining competitive performance for financial fraud detection tasks. The evaluation script generates detailed metrics and visualizations to compare the performance of the teacher (BERT) and student (TinyBERT) models.
+
+## Applications
+
+The TinyBERT Financial Fraud Detection system can be deployed in various real-world scenarios:
+
+### 1. Financial Institutions
+
+- **Email Filtering**: Automatically screen incoming emails to detect phishing attempts targeting customers or employees
+- **Transaction Monitoring**: Analyze transaction descriptions for suspicious patterns or fraud indicators
+- **Customer Support**: Screen customer support conversations for potential social engineering attacks
+- **Document Verification**: Analyze financial documents for fraudulent content or misrepresentations
+
+### 2. Fintech Applications
+
+- **Mobile Banking Security**: Integrate into mobile banking apps to verify transaction descriptions
+- **Peer-to-Peer Payments**: Screen payment notes and messages for fraud indicators
+- **Investment Platforms**: Detect potential investment fraud in product descriptions
+- **Cryptocurrency Exchanges**: Identify suspicious wallet descriptions or transaction memos
+
+### 3. Regulatory Compliance
+
+- **Anti-Money Laundering (AML)**: Support AML efforts by flagging suspicious text patterns
+- **Know Your Customer (KYC)**: Enhance KYC processes by analyzing customer-provided information
+- **Fraud Investigation**: Assist investigators by quickly scanning large volumes of text data
+- **Regulatory Reporting**: Help identify reportable incidents in financial communications
+
+### 4. Enterprise Security
+
+- **Employee Training**: Identify areas where employees may be vulnerable to financial fraud
+- **Vendor Management**: Screen vendor communications for potential fraud indicators
+- **Internal Audit**: Support audit processes by identifying suspicious text patterns
+- **Risk Assessment**: Contribute to overall risk assessment by identifying textual fraud indicators
+
+### 5. Consumer Protection
+
+- **Browser Extensions**: Integrate into browser extensions to warn users about potentially fraudulent websites
+- **Financial Education**: Use as a tool to educate consumers about recognizing fraud
+- **Personal Finance Apps**: Integrate into personal finance apps to alert users to potential scams
 
 ## Advanced Usage
 
@@ -141,19 +210,45 @@ The project includes scripts for classifying financial data from FineWeb:
 1. **Batch Classification**: Process and classify a dataset from FineWeb
 
 ```bash
-python scripts/classify_fineweb.py --model_path ./output/tinybert_task_specific --data_dir ./data --output_dir ./output
+python scripts/classify_fineweb.py --model_path ./output/tinybert_general_distill --data_dir ./data --output_dir ./output
 ```
 
 2. **Single Text Classification**: Classify a single financial text
 
 ```bash
-python classify_text.py --model_path ./output/tinybert_task_specific --text "Your account requires verification, please send your credentials"
+python classify_text.py --model_path ./output/tinybert_general_distill --text "Your account requires verification, please send your credentials"
 ```
 
 You can also classify text from a file:
 
 ```bash
-python classify_text.py --model_path ./output/tinybert_task_specific --file ./data/sample_text.txt
+python classify_text.py --model_path ./output/tinybert_general_distill --file ./data/sample_text.txt
+```
+
+### Deployment Scenarios
+
+#### API Service
+
+You can deploy the model as a REST API service using FastAPI:
+
+```bash
+python scripts/serve_api.py --model_path ./output/tinybert_general_distill --port 8000
+```
+
+This creates an API endpoint at `http://localhost:8000/predict` that accepts POST requests with JSON data:
+
+```json
+{
+  "text": "Your account requires verification, please send your credentials"
+}
+```
+
+#### Batch Processing Pipeline
+
+For processing large volumes of text data, use the batch processing script:
+
+```bash
+python scripts/batch_process.py --model_path ./output/tinybert_general_distill --input_file ./data/input.csv --output_file ./output/results.csv
 ```
 
 ### Troubleshooting
